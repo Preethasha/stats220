@@ -1,0 +1,370 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+
+```
+
+## What's going on with this data?
+
+This data describes the number of parking lots occupied by parked cars off street from my house from 8am to 11pm from Monday to Sunday. Data of 6 parking lots have been collected, with lots labelled 1, 2, 3, 4, 5 and 6. The data was then analysed to understand which parking lots are occupied by parked cars at which times during each of the week. Data was collected at 8.00am, 10.00am, 5.00pm, 7.00pm, 9.00pm and 11.00pm each day of the week. These time intervals were chosen to observe if there were any parking lots free at these times. With this data, we aim to investigate if my family will have a parking spot off street our house (out of the 6 parking lots) if we were to get a new car. 
+
+Firstly, the main dataframe that will be used for subsequent data analysis is made from the original data set. The google form data was collected in a google sheet and saved as a csv file. Below, the csv file is read into R. The dataframe is assigned the variable name 'logged_data'. The headers of the table in the dataframe are then renamed. This renamed dataframe is then assigned a new variable name of 'latest_data'. Lastly, the column 'Timestamp in latest_data is removed, and this new dataset is assigned the variable name 'new_data'. 
+
+```{r, echo=FALSE}
+
+library(tidyverse)
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vS1iF8iHDnxQL_KRHa7ubNPQF84n6OWQ5YHE_wgkQrYl7qBUmFv4slgYZjpp_CCDWfQ0NgCOQdOx_ng/pub?output=csv")
+  
+latest_data <- logged_data %>% 
+  rename(Day = 2,
+         Time = 3,
+         NumberOfParkingSpotsOccupied = 4,
+         ParkingSpotsOccupied = 5)
+
+new_data <- latest_data %>%
+  select(-Timestamp)
+
+```
+
+## Tidying of Data
+
+Next, the data in new_data is tidied such that data from each individual day can be analysed. This is done through creating separate data sets for each day of the week (Monday - Sunday). After isolating data collected from each day, the 'Day' column is removed and the 'ParkingSpotsOccupied' column is split into individual rows for each different parking spot chosen in the form. The 'ParkingSpotsOccupied' column is converted to a categorical variable, rather than a continuous one. Finally, any null values the data set are converted to '0' values. Each different data set is assigned the variable name 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' or 'Sunday'. 
+
+```{r, echo=FALSE}
+Monday <- new_data %>% 
+  filter(Day == "Monday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Tuesday <- new_data %>%
+  filter(Day == "Tuesday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = replace_na(ParkingSpotsOccupied, "0"),
+         ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Wednesday <- new_data %>%
+  filter(Day == "Wednesday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Thursday <- new_data %>% 
+  filter(Day == "Thursday") %>%
+  select(-Day) %>%
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Friday <- new_data %>% 
+  filter(Day == "Friday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = replace_na(ParkingSpotsOccupied, "0"),
+         ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Saturday <- new_data %>%
+  filter(Day == "Saturday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+Sunday <- new_data %>%
+  filter(Day == "Sunday") %>%
+  select(-Day) %>% 
+  separate_rows(ParkingSpotsOccupied, sep = ", ") %>%
+  mutate(ParkingSpotsOccupied = as.factor(ParkingSpotsOccupied),
+         Time = factor(Time, levels = 
+                         c("8.00am", "10.00am", "5.00pm", "7.00pm", "9.00pm", "11.00pm")))
+
+
+```
+
+## Plotting Bar Graphs for Each Day of the Week 
+
+Bar graphs were then plotted using the 7 new data sets created. Each bar graph aimed to display the number of parking lots which were occupied by parked cars at each time interval throughout the day. Each bar is filled with the lots which were parked, distinguished by a different colour as labelled in the key. The times at which the maximum and minimum number of lots were occupied in each day were identified to understand peak and off-peak parking periods.
+
+### Monday 
+
+```{r, echo=FALSE}
+
+monday_graph <- Monday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Monday",
+    x = "Time",
+    y = "Number of Parking Spots Occupied",
+    fill = "Parking Spot Number",
+    caption = "Source: Google Forms")
+monday_graph
+
+monMax <- new_data %>%
+  filter(Day == "Monday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+monMaxTime <- monMax$Time
+monMaxSpots <- (monMax$NumberOfParkingSpotsOccupied)[1]
+
+monMin <- new_data %>%
+  filter(Day == "Monday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) 
+monMinTime <- monMin$Time
+monMinSpots <- (monMin$NumberOfParkingSpotsOccupied)[1]
+
+monTotalCars <- sum((new_data
+                     %>% slice(1:6))$NumberOfParkingSpotsOccupied)
+       
+```
+
+Parking spot 1 had the highest frequency of parked cars, being occupied throughout the day. Parking spots 3 and 6 had the lowest frequency of parked cars, being empty throughout the day.The most crowded times in the day were 8.00am, 10.00am, 9.00pm and 11.00pm with 4 cars parked during each time. The least crowded time was 5.00pm, with 1 car parked. 
+
+It is observed that the times, `r monMaxTime`, seem to be the most crowded with `r monMaxSpots` parking spots occupied, whereas the time `r monMinTime` seems to be the least crowded with `r monMinSpots` occupied on Monday. The total number of cars parked at these 6 spots on Monday was `r monTotalCars`.
+
+
+### Tuesday 
+
+```{r, echo=FALSE}
+
+tuesday_graph <- Tuesday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Tuesday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+tuesday_graph
+
+tueMax <- new_data %>%
+  filter(Day == "Tuesday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+tueMaxTime <- tueMax$Time
+tueMaxSpots <- (tueMax$NumberOfParkingSpotsOccupied)[1]
+
+tueMin <- new_data %>%
+  filter(Day == "Tuesday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+tueMinTime <- tueMin$Time
+tueMinSpots <- (tueMin$NumberOfParkingSpotsOccupied)[1]
+
+tueTotalCars <- sum((new_data
+                     %>% slice(7:12))$NumberOfParkingSpotsOccupied)
+
+```
+
+Parking spot 1 had the highest frequency of parked cars, being occupied the most throughout the day. Parking spot 6 had the lowest frequency of parked cars, being empty throughout the day. The most crowded times in the day were 9.00pm and 11.00pm with 5 cars parked during each time. The least crowded time was 5.00pm with 0 cars parked. 
+
+It is observed that the times, `r tueMaxTime`, seem to be the most crowded with `r tueMaxSpots` parking spots occupied, whereas the time `r tueMinTime` seems to be the least crowded with `r tueMinSpots` occupied on Tuesday. The total number of cars parked at these 6 spots on Tuesday was `r tueTotalCars`.
+
+
+### Wednesday 
+
+```{r, echo=FALSE}
+
+wednesday_graph <- Wednesday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Wednesday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+wednesday_graph
+
+wedMax <- new_data %>%
+  filter(Day == "Wednesday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+wedMaxTime <- wedMax$Time
+wedMaxSpots <- (wedMax$NumberOfParkingSpotsOccupied)[1]
+
+wedMin <- new_data %>%
+  filter(Day == "Wednesday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+wedMinTime <- wedMin$Time
+wedMinSpots <- (wedMin$NumberOfParkingSpotsOccupied)[1]
+
+wedTotalCars <- sum((new_data
+                     %>% slice(13:18))$NumberOfParkingSpotsOccupied)
+
+```
+
+Parking spot 1 had the highest frequency of parked cars, being occupied throughout the day. Parking spot 6 had the lowest frequency of parked cars, only being occupied at 10.00am. All parking spots were used at least once. The most crowded times in the day were 8.00am, 9.00pm and 11.00pm with 5 cars parked during each time. The least crowded times were 10.00am and 5.00pm with 2 cars parked.
+
+It is observed that the times, `r wedMaxTime`, seem to be the most crowded with `r wedMaxSpots` parking spots occupied, whereas the time `r wedMinTime` seems to be the least crowded with `r wedMinSpots` occupied on Wednesday. The total number of cars parked at these 6 spots on Wednesday was `r wedTotalCars`.
+
+### Thursday
+
+```{r, echo=FALSE}
+
+thursday_graph <- Thursday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Thursday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+thursday_graph
+
+thuMax <- new_data %>%
+  filter(Day == "Thursday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+thuMaxTime <- thuMax$Time
+thuMaxSpots <- (thuMax$NumberOfParkingSpotsOccupied)[1]
+
+thuMin <- new_data %>%
+  filter(Day == "Thursday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+thuMinTime <- thuMax$Time
+thuMinSpots <- (thuMax$NumberOfParkingSpotsOccupied)[1]
+
+thuTotalCars <- sum((new_data
+                     %>% slice(19:24))$NumberOfParkingSpotsOccupied)
+
+```
+
+Parking spots 1 and 2 had the highest frequency of parked cars, being occupied throughout the day. Parking spot 6 had the lowest frequency of parked cars, being empty throughout the day. The most crowded times in the day were 9.00pm and 11.00pm with 5 cars parked during each time. The least crowded times were 10.00am and 5.00pm with 1 car parked.
+
+It is observed that the times, `r thuMaxTime`, seem to be the most crowded with `r thuMaxSpots` parking spots occupied, whereas the time `r thuMinTime` seems to be the least crowded with `r thuMinSpots` occupied on Thursday. The total number of cars parked at these 6 spots on Thursday was `r thuTotalCars`.
+
+
+### Friday
+
+```{r, echo=FALSE}
+
+friday_graph <- Friday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Friday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+friday_graph
+
+friMax <- new_data %>%
+  filter(Day == "Friday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+friMaxTime <- friMax$Time
+friMaxSpots <- (friMax$NumberOfParkingSpotsOccupied)[1]
+
+
+friMin <- new_data %>%
+  filter(Day == "Friday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+friMinTime <- thuMin$Time
+friMinSpots <- (thuMin$NumberOfParkingSpotsOccupied)[1]
+
+friTotalCars <- sum((new_data
+                     %>% slice(25:30))$NumberOfParkingSpotsOccupied)
+                    
+
+```
+
+Parking spots 1, 2 and 4 had the highest frequency of parked cars, being occupied throughout the day. Parking spot 6 had the lowest frequency of parked cars, with only 2 cars parked throughout the day. The most crowded times in the day were 9.00pm and 11.00pm with 5 cars parked during each time. The least crowded time was 10.00am with no cars parked.
+
+It is observed that the times, `r friMaxTime`, seem to be the most crowded with `r friMaxSpots` parking spots occupied, whereas the time `r friMinTime` seems to be the least crowded with `r friMinSpots` occupied on Thursday. The total number of cars parked at these 6 spots on Friday was `r friTotalCars`.
+
+
+### Saturday 
+
+```{r, echo=FALSE}
+
+saturday_graph <- Saturday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Saturday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+saturday_graph
+
+satMax <- new_data %>%
+  filter(Day == "Saturday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+satMaxTime <- satMax$Time
+satMaxSpots <- (satMax$NumberOfParkingSpotsOccupied)[1]
+
+satMin <- new_data %>%
+  filter(Day == "Saturday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+satMinTime <- satMin$Time
+satMinSpots <- (satMin$NumberOfParkingSpotsOccupied)[1]
+
+satTotalCars <- sum((new_data
+                     %>% slice(30:35))$NumberOfParkingSpotsOccupied)
+
+```
+
+Parking spots 1 and 2 had the highest frequency of parked cars, being occupied throughout the day. Parking spot 6 had the lowest frequency of parked cars, being empty throughout the day. The most crowded times in the day were 8.00am and 11.00pm with 5 cars parked during each time. The least crowded times were 5.00pm and 7.00pm with 2 cars parked.
+
+It is observed that the times, `r satMaxTime`, seem to be the most crowded with `r satMaxSpots` parking spots occupied, whereas the time `r satMinTime` seems to be the least crowded with `r satMinSpots` occupied on Saturday. The total number of cars parked at these 6 spots on Saturday was `r satTotalCars`. 
+
+### Sunday
+
+```{r, echo=FALSE}
+
+sunday_graph <- Sunday %>% 
+  ggplot(aes(x = Time, fill = ParkingSpotsOccupied)) + 
+  geom_bar(position = "stack") + 
+  labs(title = "Parking Spots Occupied at from 8.00am - 11.00pm on Sunday",
+       x = "Time",
+       y = "Number of Parking Spots Occupied",
+       fill = "Parking Spot Number",
+       caption = "Source: Google Forms")
+sunday_graph
+
+sunMax <- new_data %>%
+  filter(Day == "Sunday") %>%
+  filter(NumberOfParkingSpotsOccupied == max(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+sunMaxTime <- sunMax$Time
+sunMaxSpots <- (sunMax$NumberOfParkingSpotsOccupied)[1]
+
+
+sunMin <- new_data %>%
+  filter(Day == "Sunday") %>%
+  filter(NumberOfParkingSpotsOccupied == min(NumberOfParkingSpotsOccupied)) %>%
+  select(Time, NumberOfParkingSpotsOccupied)
+sunMinTime <- sunMin$Time
+sunMinSpots <- (sunMin$NumberOfParkingSpotsOccupied)[1]
+
+sunTotalCars <- sum((new_data
+                     %>% slice(30:35))$NumberOfParkingSpotsOccupied)
+
+```
+
+Parking spot 1 had the highest frequency of parked cars, being occupied throughout the day. Parking spot 6 had the lowest frequency of parked cars, being empty throughout the day. The most crowded times in the day were 8.00am, 9.00pm and 11.00pm with 5 cars parked during each time. The least crowded time was 5.00pm with 1 car parked. 
+
+It is observed that the times, `r sunMaxTime`, seem to be the most crowded with `r sunMaxSpots` parking spots occupied, whereas the time `r sunMinTime` seems to be the least crowded with `r sunMinSpots` occupied on Sunday. The total number of cars parked at these 6 spots on Sunday was `r sunTotalCars`.  
